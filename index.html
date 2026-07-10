@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Slide — Ponto & Banco de Horas | Total Express</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --tex-red:#E30613;
+  --navy-deep:#0C142E;
+  --navy:#16224A;
+  --navy-card:#1B2A5E;
+  --ink:#F4F6FC;
+  --ink-dim:#9AA6C8;
+  --good:#2EC97E;
+  --warn:#FFB020;
+  --bad:#FF4D5E;
+  --panel:#FFFFFF;
+  --panel-line:#E3E7F0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Sora','Trebuchet MS',sans-serif;
+  background:#EDF0F7;color:#1B2A5E;
+  display:flex;flex-direction:column;height:100vh;overflow:hidden;
+}
+
+/* ============ TOPO ============ */
+.topbar{
+  background:var(--navy-deep);color:var(--ink);
+  display:flex;align-items:center;gap:14px;
+  padding:10px 18px;flex-shrink:0;
+}
+.topbar .brand{font-weight:800;font-style:italic;color:var(--tex-red);font-size:18px;letter-spacing:.5px}
+.topbar .brand span{color:#fff;font-style:normal;font-weight:600;font-size:13px}
+.topbar h1{font-size:13px;font-weight:600;color:var(--ink-dim);flex:1}
+.btn{
+  font-family:inherit;font-size:13px;font-weight:700;
+  border:none;border-radius:8px;padding:9px 16px;cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn:active{transform:scale(.97)}
+.btn-red{background:var(--tex-red);color:#fff;box-shadow:0 3px 10px rgba(227,6,19,.35)}
+.btn-red:hover{box-shadow:0 5px 16px rgba(227,6,19,.5)}
+.btn-ghost{background:transparent;color:var(--ink-dim);border:1px solid #33406B}
+.btn-ghost:hover{color:#fff;border-color:#5A6BA5}
+
+.layout{display:flex;flex:1;min-height:0}
+
+/* ============ PAINEL DE EDIÇÃO ============ */
+.editor{
+  width:330px;flex-shrink:0;background:var(--panel);
+  border-right:1px solid var(--panel-line);
+  overflow-y:auto;padding:16px 16px 40px;
+}
+.editor h2{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--tex-red);margin:20px 0 10px;font-weight:800;
+}
+.editor h2:first-child{margin-top:0}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;font-weight:600;color:#5B6788;margin-bottom:4px}
+.field input[type=text],.field input[type=number]{
+  width:100%;padding:8px 10px;border:1px solid var(--panel-line);border-radius:7px;
+  font-family:inherit;font-size:13px;color:#1B2A5E;background:#FAFBFE;
+}
+.field input:focus{outline:2px solid #1B2A5E33;border-color:#1B2A5E}
+.row2{display:flex;gap:8px}
+.row2 .field{flex:1}
+.slider-field{display:flex;align-items:center;gap:8px}
+.slider-field input[type=range]{flex:1;accent-color:var(--tex-red)}
+.slider-field input[type=number]{width:64px;padding:6px 6px;text-align:center}
+.month-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.month-row input[type=text]{flex:1.2}
+.month-row input[type=number]{width:64px;text-align:center}
+.month-row button{
+  background:#FDECEC;color:var(--tex-red);border:none;border-radius:6px;
+  width:26px;height:26px;cursor:pointer;font-weight:800;flex-shrink:0;
+}
+.add-month{
+  background:#EEF1FA;border:1px dashed #B8C2DE;color:#1B2A5E;
+  width:100%;padding:7px;border-radius:7px;font-family:inherit;
+  font-size:12px;font-weight:700;cursor:pointer;margin-top:2px;
+}
+.add-month:hover{background:#E4E9F7}
+.sum-note{font-size:11px;color:#8A94B0;margin-top:2px}
+.sum-note.bad{color:var(--tex-red);font-weight:700}
+.hint{font-size:11px;color:#8A94B0;line-height:1.5;background:#F4F6FC;border-radius:8px;padding:10px;margin-top:14px}
+
+/* ============ ÁREA DO SLIDE ============ */
+.stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:18px}
+#slideWrap{transform-origin:center center}
+
+/* ---------- O SLIDE (1280x720) ---------- */
+#slide{
+  width:1280px;height:720px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(1100px 600px at 82% -12%, #1B2A5E0D 0%, transparent 60%),
+    radial-gradient(900px 500px at -5% 112%, #E306130A 0%, transparent 55%),
+    linear-gradient(160deg, #FFFFFF 0%, #FBFCFE 60%, #F5F7FC 100%);
+  color:#1B2A5E;
+  border-radius:6px;
+  box-shadow:0 16px 50px rgba(12,20,46,.14);border:1px solid #E3E7F0;
+  display:flex;flex-direction:column;
+  padding:34px 44px 26px;
+  font-family:'Sora','Trebuchet MS',sans-serif;
+}
+/* linha de grade sutil, clima "torre de controle" */
+#slide::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.4;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 47px, #EDF0F7 47px 48px),
+    repeating-linear-gradient(90deg, transparent 0 47px, #EDF0F7 47px 48px);
+}
+
+/* header do slide */
+.s-head{display:flex;align-items:flex-start;gap:20px;position:relative;z-index:1}
+.s-head-left{flex:1}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.22em;
+  color:#7A85A6;text-transform:uppercase;margin-bottom:6px;
+}
+.eyebrow b{color:var(--tex-red)}
+.s-title{font-size:40px;font-weight:800;line-height:1.02;letter-spacing:-.5px}
+.s-title em{font-style:normal;color:var(--tex-red)}
+.s-sub{font-size:14px;color:#5B6788;margin-top:6px;font-weight:600}
+.s-head-right{text-align:right}
+.s-logo{font-size:22px;font-weight:800;font-style:italic;color:var(--tex-red)}
+.s-logo span{font-style:normal;color:#1B2A5E;font-weight:600;font-size:13px}
+.s-tag{font-size:10px;color:#7A85A6;margin-top:2px}
+.chips{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.chip{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  padding:5px 12px;border-radius:99px;letter-spacing:.05em;
+  border:1px solid #D5DBEA;color:#5B6788;background:#F4F6FC;
+}
+.chip.status{border:none;color:#06210F;background:var(--good)}
+.chip.status.warn{color:#3A2600;background:var(--warn)}
+.chip.status.bad{color:#fff;background:var(--tex-red)}
+
+/* corpo em 3 colunas */
+.s-body{display:flex;gap:18px;flex:1;margin-top:22px;min-height:0;position:relative;z-index:1}
+.card{
+  flex:1;background:#FFFFFF;border:1px solid #E3E7F0;border-radius:14px;
+  box-shadow:0 4px 18px rgba(27,42,94,.06);
+  padding:18px 20px;display:flex;flex-direction:column;
+  animation:rise .6s ease both;
+}
+.card:nth-child(2){animation-delay:.12s}
+.card:nth-child(3){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  .card{animation:none}
+  *{transition:none!important}
+}
+.card-title{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:#7A85A6;margin-bottom:2px;
+}
+.card-title b{color:#1B2A5E}
+
+/* --- col 1: gauge --- */
+.gauge-zone{display:flex;align-items:center;gap:14px;margin-top:8px}
+.gauge-svg{flex-shrink:0}
+.gauge-big{font-size:44px;font-weight:800;line-height:1}
+.gauge-big small{font-size:20px;font-weight:700;color:#7A85A6}
+.gauge-lab{font-size:11px;color:#5B6788;margin-top:4px;line-height:1.4}
+.mini-months{display:flex;gap:12px;flex:1;margin-top:14px;padding-top:10px;border-top:1px dashed #E3E7F0;min-height:0}
+.mm{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-height:0}
+.mm .barwrap{width:100%;max-width:54px;flex:1;display:flex;flex-direction:column;justify-content:flex-end;background:#EDF0F7;border-radius:6px;overflow:hidden}
+.mm .fill{width:100%;background:linear-gradient(180deg,#4A66C9,#2A3F8F);transition:height .7s cubic-bezier(.2,.8,.2,1)}
+.mm .fill.low{background:linear-gradient(180deg,#FF6B78,#C21927)}
+.mm .fill.mid{background:linear-gradient(180deg,#FFC65C,#D98A00)}
+.mm .val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#1B2A5E}
+.mm .name{font-size:10px;color:#7A85A6;text-transform:uppercase;letter-spacing:.08em}
+
+/* --- col 2: aprovação --- */
+.appr-big{font-size:44px;font-weight:800;margin-top:8px}
+.appr-big small{font-size:16px;color:#7A85A6;font-weight:600;display:block;margin-top:2px}
+.seg-bar{display:flex;height:26px;border-radius:8px;overflow:hidden;margin-top:16px;background:#EDF0F7}
+.seg{transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.seg.a{background:linear-gradient(90deg,#2EC97E,#1E9B5E)}
+.seg.n{background:linear-gradient(90deg,#FF4D5E,#C21927)}
+.seg.p{background:linear-gradient(90deg,#FFB020,#D98A00)}
+.legend{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.leg-row{display:flex;align-items:center;gap:9px;font-size:13px}
+.dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.leg-row .ln{color:#5B6788;flex:1}
+.leg-row .lv{font-family:'IBM Plex Mono',monospace;font-weight:600;color:#1B2A5E}
+
+/* --- col 3: BH --- */
+.bh-kpis{display:flex;gap:10px;margin-top:10px}
+.kpi{flex:1;background:#F7F8FC;border:1px solid #E3E7F0;border-radius:10px;padding:9px 10px}
+.kpi .kl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#7A85A6;line-height:1.3}
+.kpi .kv{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:3px;color:#1B2A5E}
+.kpi .kv.red{color:#C21927}
+.kpi .kv.green{color:#1E9B5E}
+.beam-zone{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:6px}
+.beam-caption{display:flex;justify-content:space-between;font-size:10px;color:#7A85A6;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.bh-goal{font-size:11px;color:#5B6788;font-style:italic;margin-top:6px;border-top:1px dashed #E3E7F0;padding-top:8px}
+.bh-goal b{color:#1B2A5E;font-style:normal}
+
+/* footer destaques */
+.s-foot{display:flex;gap:12px;margin-top:18px;position:relative;z-index:1}
+.hl{
+  flex:1;display:flex;gap:9px;align-items:flex-start;
+  background:#FFFFFF;border:1px solid #E3E7F0;border-radius:10px;padding:10px 12px;
+  font-size:12px;line-height:1.45;color:#3A4668;box-shadow:0 3px 12px rgba(27,42,94,.05);
+}
+.hl .hn{
+  font-family:'IBM Plex Mono',monospace;color:var(--tex-red);
+  font-weight:600;font-size:12px;flex-shrink:0;margin-top:1px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">TOTAL<span> express</span></div>
+  <h1>Gerador de slide · Ponto &amp; Banco de Horas — digite os números à esquerda e clique em Exportar PNG</h1>
+  <button class="btn btn-ghost" onclick="resetData()">Restaurar exemplo</button>
+  <button class="btn btn-red" onclick="exportPNG()">⬇ Exportar PNG</button>
+</div>
+
+<div class="layout">
+  <!-- ================= EDITOR ================= -->
+  <div class="editor" id="editor">
+    <h2>Cabeçalho</h2>
+    <div class="field"><label>Área / times</label><input type="text" id="f_area" oninput="render()"></div>
+    <div class="row2">
+      <div class="field"><label>RGD (data)</label><input type="text" id="f_rgd" oninput="render()"></div>
+      <div class="field"><label>Período</label><input type="text" id="f_periodo" oninput="render()"></div>
+    </div>
+
+    <h2>Tratativa do ponto</h2>
+    <div class="field">
+      <label>Meta de tratamento (%)</label>
+      <div class="slider-field">
+        <input type="range" id="f_meta" min="50" max="100" oninput="sync('f_meta');render()">
+        <input type="number" id="f_meta_n" min="50" max="100" oninput="sync('f_meta_n');render()">
+      </div>
+    </div>
+    <div class="field"><label>Meses (% tratado) — o último mês vira o gauge</label>
+      <div id="months"></div>
+      <button class="add-month" onclick="addMonth()">+ adicionar mês</button>
+    </div>
+
+    <h2>Aprovação das tratativas</h2>
+    <div class="row2">
+      <div class="field"><label>Aprovado %</label><input type="number" id="f_ap" step="0.1" oninput="render()"></div>
+      <div class="field"><label>Não aprov. %</label><input type="number" id="f_na" step="0.1" oninput="render()"></div>
+      <div class="field"><label>Pendente %</label><input type="number" id="f_pe" step="0.1" oninput="render()"></div>
+    </div>
+    <div class="sum-note" id="sumNote"></div>
+
+    <h2>Banco de horas</h2>
+    <div class="row2">
+      <div class="field"><label>Saldo positivo (h)</label><input type="number" id="f_saldo" step="0.1" oninput="render()"></div>
+      <div class="field"><label>Compensado (h)</label><input type="number" id="f_comp" step="0.1" oninput="render()"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>BH a pagar (h)</label><input type="number" id="f_pagar" step="0.1" oninput="render()"></div>
+      <div class="field"><label>Meta zeragem (data)</label><input type="text" id="f_zerar" oninput="render()"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Redução (h) ▼</label><input type="number" id="f_red" step="1" oninput="render()"></div>
+      <div class="field"><label>Aumento (h) ▲</label><input type="number" id="f_aum" step="1" oninput="render()"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Rótulo da redução</label><input type="text" id="f_redlab" oninput="render()"></div>
+      <div class="field"><label>Rótulo do aumento</label><input type="text" id="f_aumlab" oninput="render()"></div>
+    </div>
+
+    <h2>Destaques (até 3)</h2>
+    <div class="field"><input type="text" id="f_d1" oninput="render()"></div>
+    <div class="field"><input type="text" id="f_d2" oninput="render()"></div>
+    <div class="field"><input type="text" id="f_d3" oninput="render()"></div>
+
+    <div class="hint">
+      💡 Como usar: 1) atualize os números à esquerda — o slide se monta sozinho, incluindo
+      o chip de status e a inclinação da balança de BH; 2) clique em <b>Exportar PNG</b>;
+      3) cole a imagem no PowerPoint da RGD. Nada mais precisa ser formatado.
+    </div>
+  </div>
+
+  <!-- ================= SLIDE ================= -->
+  <div class="stage" id="stage">
+    <div id="slideWrap">
+      <div id="slide">
+        <div class="s-head">
+          <div class="s-head-left">
+            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · RGD <span id="s_rgd"></span></div>
+            <div class="s-title">PONTO &amp; <em>BANCO DE HORAS</em></div>
+            <div class="s-sub" id="s_area"></div>
+          </div>
+          <div class="s-head-right">
+            <div class="s-logo">TOTAL<span> express</span></div>
+            <div class="s-tag">Conecta negócios. Aproxima pessoas.</div>
+            <div class="chips">
+              <div class="chip" id="s_periodo"></div>
+              <div class="chip status" id="s_status"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s-body">
+          <!-- COL 1 -->
+          <div class="card">
+            <div class="card-title"><b>Tratativa do ponto</b> · % tratado</div>
+            <div class="gauge-zone">
+              <svg class="gauge-svg" width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="62" fill="none" stroke="#EDF0F7" stroke-width="15"/>
+                <circle id="gaugeArc" cx="75" cy="75" r="62" fill="none" stroke="#2EC97E"
+                        stroke-width="15" stroke-linecap="round"
+                        stroke-dasharray="389.5" stroke-dashoffset="389.5"
+                        transform="rotate(-90 75 75)"
+                        style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1), stroke .4s"/>
+                <line id="metaTick" x1="75" y1="6" x2="75" y2="20" stroke="#E30613" stroke-width="3"
+                      transform="rotate(0 75 75)"/>
+                <text id="gaugeMon" x="75" y="83" text-anchor="middle" fill="#7A85A6"
+                      font-size="11" font-family="IBM Plex Mono,monospace" letter-spacing="1"></text>
+                <text id="gaugeVal" x="75" y="68" text-anchor="middle" fill="#1B2A5E"
+                      font-size="26" font-weight="800" font-family="Sora,sans-serif"></text>
+              </svg>
+              <div>
+                <div class="gauge-big" id="g_gap"></div>
+                <div class="gauge-lab" id="g_gaplab"></div>
+              </div>
+            </div>
+            <div class="mini-months" id="miniMonths"></div>
+          </div>
+
+          <!-- COL 2 -->
+          <div class="card">
+            <div class="card-title"><b>Aprovação</b> · tratativas do período</div>
+            <div class="appr-big"><span id="a_big"></span><small>das tratativas aprovadas</small></div>
+            <div class="seg-bar">
+              <div class="seg a" id="seg_a"></div>
+              <div class="seg n" id="seg_n"></div>
+              <div class="seg p" id="seg_p"></div>
+            </div>
+            <div class="legend">
+              <div class="leg-row"><span class="dot" style="background:#2EC97E"></span><span class="ln">Aprovado</span><span class="lv" id="lv_a"></span></div>
+              <div class="leg-row"><span class="dot" style="background:#FF4D5E"></span><span class="ln">Não aprovado</span><span class="lv" id="lv_n"></span></div>
+              <div class="leg-row"><span class="dot" style="background:#FFB020"></span><span class="ln">Pendente</span><span class="lv" id="lv_p"></span></div>
+            </div>
+          </div>
+
+          <!-- COL 3 -->
+          <div class="card">
+            <div class="card-title"><b>Banco de horas</b> · consumo &amp; zeragem</div>
+            <div class="bh-kpis">
+              <div class="kpi"><div class="kl">Saldo positivo</div><div class="kv" id="k_saldo"></div></div>
+              <div class="kpi"><div class="kl">Compensado</div><div class="kv green" id="k_comp"></div></div>
+              <div class="kpi"><div class="kl">BH a pagar</div><div class="kv red" id="k_pagar"></div></div>
+            </div>
+            <div class="beam-zone">
+              <svg width="100%" height="120" viewBox="0 0 340 120" preserveAspectRatio="xMidYMid meet">
+                <polygon points="170,74 160,102 180,102" fill="#C6CEE3"/>
+                <g id="beamG" transform="rotate(0 170 72)" style="transition:transform .8s cubic-bezier(.2,.8,.2,1)">
+                  <rect x="30" y="68" width="280" height="8" rx="4" fill="#1B2A5E"/>
+                  <g>
+                    <rect x="34" y="26" width="96" height="40" rx="9" fill="#F2FBF6" stroke="#1E9B5E" stroke-width="1.5"/>
+                    <text id="beamRed" x="82" y="45" text-anchor="middle" fill="#1E9B5E" font-size="16" font-weight="700" font-family="IBM Plex Mono,monospace"></text>
+                    <text x="82" y="59" text-anchor="middle" fill="#7A85A6" font-size="8.5" font-family="Sora,sans-serif">▼ REDUÇÃO</text>
+                  </g>
+                  <g>
+                    <rect x="210" y="26" width="96" height="40" rx="9" fill="#FDF3F4" stroke="#C21927" stroke-width="1.5"/>
+                    <text id="beamAum" x="258" y="45" text-anchor="middle" fill="#C21927" font-size="16" font-weight="700" font-family="IBM Plex Mono,monospace"></text>
+                    <text x="258" y="59" text-anchor="middle" fill="#7A85A6" font-size="8.5" font-family="Sora,sans-serif">▲ AUMENTO</text>
+                  </g>
+                </g>
+              </svg>
+              <div class="beam-caption"><span id="beamRedLab"></span><span id="beamAumLab"></span></div>
+            </div>
+            <div class="bh-goal" id="bh_goal"></div>
+          </div>
+        </div>
+
+        <div class="s-foot" id="s_foot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULTS = {
+  area:"Solutions Programação / Suprimentos Fretes",
+  rgd:"15/05", periodo:"01 a 19/11", meta:95,
+  months:[{n:"Outubro",v:99.0},{n:"Novembro",v:82.0}],
+  ap:90.4, na:8.9, pe:0.7,
+  saldo:263.2, comp:82.8, pagar:9.2, zerar:"27/11",
+  red:289, aum:422,
+  redlab:"Suprimentos Fretes", aumlab:"Programação Solutions (demandas manuais)",
+  d1:"Pendência concentrada em fins de semana e feriado — ajustes seguem hoje",
+  d2:"Interjornadas inerentes aos ajustes de escala no LG — correção em andamento",
+  d3:"Visão de BH solicitada ao RH para plano de zeragem até 27/11",
+};
+let months = [];
+
+function el(id){return document.getElementById(id)}
+function num(id){const v=parseFloat(el(id).value);return isNaN(v)?0:v}
+function fmt(v,d=1){return v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+
+function loadDefaults(){
+  el('f_area').value=DEFAULTS.area; el('f_rgd').value=DEFAULTS.rgd; el('f_periodo').value=DEFAULTS.periodo;
+  el('f_meta').value=DEFAULTS.meta; el('f_meta_n').value=DEFAULTS.meta;
+  el('f_ap').value=DEFAULTS.ap; el('f_na').value=DEFAULTS.na; el('f_pe').value=DEFAULTS.pe;
+  el('f_saldo').value=DEFAULTS.saldo; el('f_comp').value=DEFAULTS.comp; el('f_pagar').value=DEFAULTS.pagar;
+  el('f_zerar').value=DEFAULTS.zerar; el('f_red').value=DEFAULTS.red; el('f_aum').value=DEFAULTS.aum;
+  el('f_redlab').value=DEFAULTS.redlab; el('f_aumlab').value=DEFAULTS.aumlab;
+  el('f_d1').value=DEFAULTS.d1; el('f_d2').value=DEFAULTS.d2; el('f_d3').value=DEFAULTS.d3;
+  months = DEFAULTS.months.map(m=>({...m}));
+  buildMonthInputs();
+}
+function resetData(){loadDefaults();render()}
+function sync(src){
+  if(src==='f_meta') el('f_meta_n').value=el('f_meta').value;
+  else el('f_meta').value=el('f_meta_n').value;
+}
+
+function buildMonthInputs(){
+  const box=el('months'); box.innerHTML='';
+  months.forEach((m,i)=>{
+    const row=document.createElement('div'); row.className='month-row';
+    row.innerHTML=`<input type="text" value="${m.n}" oninput="months[${i}].n=this.value;render()">
+                   <input type="number" step="0.1" value="${m.v}" oninput="months[${i}].v=parseFloat(this.value)||0;render()">
+                   <button title="remover" onclick="months.splice(${i},1);buildMonthInputs();render()">×</button>`;
+    box.appendChild(row);
+  });
+}
+function addMonth(){
+  if(months.length>=4){alert('Máximo de 4 meses para manter o slide legível.');return}
+  months.push({n:'Novo mês',v:90}); buildMonthInputs(); render();
+}
+
+function colorFor(v,meta){ return v>=meta ? '#1E9B5E' : (v>=meta-15 ? '#E08A00' : '#C21927'); }
+
+function render(){
+  // header
+  el('s_area').textContent=el('f_area').value;
+  el('s_rgd').textContent=el('f_rgd').value;
+  el('s_periodo').textContent='PERÍODO '+el('f_periodo').value;
+
+  const meta=num('f_meta');
+  const cur=months.length?months[months.length-1]:{n:'—',v:0};
+
+  // status chip
+  const st=el('s_status');
+  if(cur.v>=meta){st.textContent='● NO ALVO';st.className='chip status'}
+  else if(cur.v>=meta-15){st.textContent='● ATENÇÃO';st.className='chip status warn'}
+  else{st.textContent='● CRÍTICO';st.className='chip status bad'}
+
+  // gauge
+  const C=2*Math.PI*62;
+  const arc=el('gaugeArc');
+  arc.setAttribute('stroke-dasharray',C);
+  arc.style.strokeDashoffset = C*(1-Math.min(cur.v,100)/100);
+  arc.setAttribute('stroke',colorFor(cur.v,meta));
+  el('gaugeVal').textContent=fmt(cur.v)+'%';
+  el('gaugeMon').textContent=cur.n.toUpperCase();
+  el('metaTick').setAttribute('transform',`rotate(${meta/100*360} 75 75)`);
+  const gap=Math.max(0,meta-cur.v);
+  el('g_gap').innerHTML = gap<=0 ? '✓' : fmt(gap)+'<small> p.p.</small>';
+  el('g_gaplab').textContent = gap<=0 ? 'Meta de '+meta+'% atingida' : 'faltam para a meta de '+meta+'% · tick vermelho no gauge';
+
+  // mini months
+  const mm=el('miniMonths'); mm.innerHTML='';
+  months.forEach(m=>{
+    const cls = m.v>=meta?'':'mid'; const cls2 = m.v<meta-15?'low':cls;
+    mm.innerHTML+=`<div class="mm">
+      <div class="val">${fmt(m.v)}%</div>
+      <div class="barwrap"><div class="fill ${cls2}" style="height:${Math.min(m.v,100)}%"></div></div>
+      <div class="name">${m.n}</div></div>`;
+  });
+
+  // aprovação (normaliza sobre a soma)
+  const a=num('f_ap'), n=num('f_na'), p=num('f_pe'); const s=a+n+p||1;
+  el('seg_a').style.width=(a/s*100)+'%';
+  el('seg_n').style.width=(n/s*100)+'%';
+  el('seg_p').style.width=(p/s*100)+'%';
+  el('a_big').textContent=fmt(a)+'%';
+  el('lv_a').textContent=fmt(a)+'%'; el('lv_n').textContent=fmt(n)+'%'; el('lv_p').textContent=fmt(p)+'%';
+  const note=el('sumNote'); const total=a+n+p;
+  note.textContent='Soma: '+fmt(total)+'%'+(Math.abs(total-100)>0.5?' — ajuste para fechar 100%':' ✓');
+  note.className='sum-note'+(Math.abs(total-100)>0.5?' bad':'');
+
+  // BH
+  el('k_saldo').textContent=fmt(num('f_saldo'))+' h';
+  el('k_comp').textContent=fmt(num('f_comp'))+' h';
+  el('k_pagar').textContent=fmt(num('f_pagar'))+' h';
+  el('bh_goal').innerHTML='Meta: <b>zerar BH até '+el('f_zerar').value+'</b> — plano em alinhamento com RH';
+  const red=num('f_red'), aum=num('f_aum');
+  el('beamRed').textContent='-'+fmt(red,0)+' h';
+  el('beamAum').textContent='+'+fmt(aum,0)+' h';
+  el('beamRedLab').textContent='▼ '+el('f_redlab').value;
+  el('beamAumLab').textContent='▲ '+el('f_aumlab').value;
+  const mx=Math.max(red,aum,1);
+  const ang=Math.max(-9,Math.min(9,(aum-red)/mx*9)); // lado maior pesa pra baixo
+  el('beamG').setAttribute('transform',`rotate(${ang} 170 72)`);
+
+  // destaques
+  const foot=el('s_foot'); foot.innerHTML='';
+  [el('f_d1').value,el('f_d2').value,el('f_d3').value].filter(t=>t.trim()).forEach((t,i)=>{
+    foot.innerHTML+=`<div class="hl"><span class="hn">0${i+1}</span><span>${t}</span></div>`;
+  });
+}
+
+function fitSlide(){
+  const stage=el('stage'), wrap=el('slideWrap');
+  const sc=Math.min((stage.clientWidth-30)/1280,(stage.clientHeight-30)/720);
+  wrap.style.transform='scale('+sc+')';
+  wrap.style.width='1280px'; wrap.style.height='720px';
+}
+
+async function exportPNG(){
+  const wrap=el('slideWrap'); const old=wrap.style.transform;
+  const canvas=await html2canvas(el('slide'),{
+    scale:2, backgroundColor:'#FFFFFF', useCORS:true,
+    onclone:(doc)=>{ const w=doc.getElementById('slideWrap'); if(w){w.style.transform='none';} }
+  });
+  wrap.style.transform=old;
+  const a=document.createElement('a');
+  a.download='Slide_Ponto_BH_'+(el('f_rgd').value||'RGD').replaceAll('/','-')+'.png';
+  a.href=canvas.toDataURL('image/png'); a.click();
+}
+
+window.addEventListener('resize',fitSlide);
+loadDefaults(); render(); fitSlide();
+</script>
+</body>
+</html>
