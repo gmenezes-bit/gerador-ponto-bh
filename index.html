@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Slide — Ponto & Banco de Horas | Total Express</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -96,7 +97,7 @@ body{
 #slideWrap{transform-origin:center center}
 
 /* ---------- O SLIDE (1280x720) ---------- */
-#slide{
+#slide,#slide2{
   width:1280px;height:720px;position:relative;overflow:hidden;
   background:
     radial-gradient(1100px 600px at 82% -12%, #1B2A5E0D 0%, transparent 60%),
@@ -110,7 +111,7 @@ body{
   font-family:'Sora','Trebuchet MS',sans-serif;
 }
 /* linha de grade sutil, clima "torre de controle" */
-#slide::before{
+#slide::before,#slide2::before{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.4;
   background:
     repeating-linear-gradient(0deg, transparent 0 47px, #EDF0F7 47px 48px),
@@ -215,13 +216,81 @@ body{
   font-family:'IBM Plex Mono',monospace;color:var(--tex-red);
   font-weight:600;font-size:12px;flex-shrink:0;margin-top:1px;
 }
+
+/* ============ ABAS ============ */
+.tabs{flex:1;display:flex;gap:8px}
+.tab{
+  font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 16px;
+  border-radius:8px;background:transparent;color:var(--ink-dim);
+  border:1px solid #33406B;cursor:pointer;transition:all .15s;
+}
+.tab:hover{color:#fff;border-color:#5A6BA5}
+.tab.active{background:#fff;color:#16224A;border-color:#fff}
+
+/* ============ IMPORTADOR (editor slide 2) ============ */
+.drop{
+  border:2px dashed #B8C2DE;border-radius:10px;padding:18px 12px;text-align:center;
+  font-size:12px;color:#5B6788;background:#FAFBFE;cursor:pointer;transition:all .15s;
+}
+.drop:hover,.drop.over{border-color:var(--tex-red);background:#FFF6F6}
+.drop b{color:#1B2A5E}
+.filestatus{font-size:11px;margin-top:6px;color:#8A94B0}
+.filestatus.ok{color:#1E9B5E;font-weight:700}
+.editor select{
+  width:100%;padding:8px 10px;border:1px solid var(--panel-line);border-radius:7px;
+  font-family:inherit;font-size:13px;color:#1B2A5E;background:#FAFBFE;
+}
+
+/* ============ SLIDE 2 ============ */
+.s2-kpis{display:flex;gap:14px;margin-top:20px;position:relative;z-index:1}
+.kbig{
+  flex:1;background:#FFFFFF;border:1px solid #E3E7F0;border-radius:12px;
+  padding:12px 16px;box-shadow:0 4px 18px rgba(27,42,94,.06);
+}
+.kbig .l{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#7A85A6}
+.kbig .v{font-size:27px;font-weight:800;color:#1B2A5E;margin-top:2px;line-height:1.1}
+.kbig .v.green{color:#1E9B5E}
+.kbig .v.red{color:#C21927}
+.kbig .s{font-size:10.5px;color:#7A85A6;margin-top:2px}
+.rk{display:flex;align-items:center;gap:9px;padding:5.5px 0;border-bottom:1px dashed #EEF1F7}
+.rk:last-child{border-bottom:none}
+.rk .pos{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tex-red);font-weight:600;width:20px;flex-shrink:0}
+.rk .who{width:172px;flex-shrink:0}
+.rk .nm{font-size:12px;font-weight:700;color:#1B2A5E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .cg{font-size:8.5px;color:#7A85A6;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk .bar{flex:1;height:9px;background:#EDF0F7;border-radius:99px;overflow:hidden}
+.rk .bar i{display:block;height:100%;background:linear-gradient(90deg,#2A3F8F,#4A66C9);border-radius:99px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.rk .hv{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#1B2A5E;width:66px;text-align:right;flex-shrink:0}
+.cb{margin-bottom:11px}
+.cb .t{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px}
+.cb .t .n{color:#3A4668;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
+.cb .t .h{font-family:'IBM Plex Mono',monospace;color:#1B2A5E;font-weight:600;flex-shrink:0}
+.cb .bar{height:10px;background:#EDF0F7;border-radius:99px;overflow:hidden}
+.cb .bar i{display:block;height:100%;background:linear-gradient(90deg,#C21927,#E30613);border-radius:99px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.cb .pp{font-size:9px;color:#7A85A6;margin-top:2px}
+.ng{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px dashed #EEF1F7;font-size:11.5px}
+.ng:last-child{border-bottom:none}
+.ng .n{color:#3A4668;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
+.ng .v{font-family:'IBM Plex Mono',monospace;color:#C21927;font-weight:600;flex-shrink:0}
+.ng-ok{font-size:12px;color:#1E9B5E;font-weight:700;text-align:center;padding:20px 0}
+.s2-empty{
+  position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  background:rgba(255,255,255,.94);border-radius:6px;text-align:center;
+}
+.s2-empty .ic{font-size:44px}
+.s2-empty .t1{font-size:19px;font-weight:800;color:#1B2A5E}
+.s2-empty .t2{font-size:13px;color:#5B6788;max-width:440px;line-height:1.5}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="brand">TOTAL<span> express</span></div>
-  <h1>Gerador de slide · Ponto &amp; Banco de Horas — digite os números à esquerda e clique em Exportar PNG</h1>
+  <div class="tabs">
+    <button class="tab active" id="tab1" onclick="switchSlide(1)">Slide 1 · Visão geral</button>
+    <button class="tab" id="tab2" onclick="switchSlide(2)">Slide 2 · BH por colaborador</button>
+  </div>
   <button class="btn btn-ghost" onclick="resetData()">Restaurar exemplo</button>
   <button class="btn btn-red" onclick="exportPNG()">⬇ Exportar PNG</button>
 </div>
@@ -229,6 +298,7 @@ body{
 <div class="layout">
   <!-- ================= EDITOR ================= -->
   <div class="editor" id="editor">
+    <div id="ed1">
     <h2>Cabeçalho</h2>
     <div class="field"><label>Área / times</label><input type="text" id="f_area" oninput="render()"></div>
     <div class="row2">
@@ -285,6 +355,38 @@ body{
       o chip de status e a inclinação da balança de BH; 2) clique em <b>Exportar PNG</b>;
       3) cole a imagem no PowerPoint da RGD. Nada mais precisa ser formatado.
     </div>
+    </div><!-- /ed1 -->
+
+    <div id="ed2" style="display:none">
+      <h2>Importar Excel de BH</h2>
+      <div class="drop" id="drop" onclick="document.getElementById('fileIn').click()">
+        Arraste aqui o arquivo <b>.xlsx</b> que o RH envia<br>ou <b>clique para escolher</b>
+        <input type="file" id="fileIn" accept=".xlsx,.xls" style="display:none">
+      </div>
+      <div class="filestatus" id="fileStatus">Nenhum arquivo importado ainda.</div>
+      <button class="add-month" onclick="loadDemo2()">Ver com dados de demonstração</button>
+
+      <h2>Filtros</h2>
+      <div class="field"><label>Centro de custo</label><select id="f2_cc" onchange="render2()"><option value="ALL">Todos</option></select></div>
+      <div class="field"><label>Gestor</label><select id="f2_g" onchange="render2()"><option value="ALL">Todos</option></select></div>
+      <div class="field">
+        <label>Quantos no ranking (Top N)</label>
+        <div class="slider-field">
+          <input type="range" id="f2_top" min="5" max="10" value="8" oninput="render2()">
+          <input type="number" id="f2_top_n" value="8" disabled>
+        </div>
+      </div>
+
+      <h2>Destaque manual (opcional)</h2>
+      <div class="field"><input type="text" id="f2_note" placeholder="Ex.: Compensação obrigatória agendada para..." oninput="render2()"></div>
+
+      <div class="hint">
+        🔒 <b>Privacidade:</b> o Excel é lido apenas no seu navegador — os dados
+        <b>não são enviados para a internet</b> nem ficam salvos no link.
+        Ao fechar a página, tudo é apagado.<br><br>
+        💡 Data da RGD, período e área são os mesmos preenchidos no Slide 1.
+      </div>
+    </div><!-- /ed2 -->
   </div>
 
   <!-- ================= SLIDE ================= -->
@@ -382,6 +484,56 @@ body{
         </div>
 
         <div class="s-foot" id="s_foot"></div>
+      </div>
+
+      <div id="slide2" style="display:none">
+        <div class="s-head">
+          <div class="s-head-left">
+            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · RGD <span id="s2_rgd"></span></div>
+            <div class="s-title">BANCO DE HORAS · <em>POR COLABORADOR</em></div>
+            <div class="s-sub" id="s2_area"></div>
+          </div>
+          <div class="s-head-right">
+            <div class="s-logo">TOTAL<span> express</span></div>
+            <div class="s-tag">Conecta negócios. Aproxima pessoas.</div>
+            <div class="chips">
+              <div class="chip" id="s2_periodo"></div>
+              <div class="chip" id="s2_scope"></div>
+              <div class="chip status" id="s2_status"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-kpis">
+          <div class="kbig"><div class="l">Colaboradores com BH</div><div class="v" id="k2_total"></div><div class="s" id="k2_total_s"></div></div>
+          <div class="kbig"><div class="l">Horas positivas (a compensar)</div><div class="v" id="k2_pos"></div><div class="s" id="k2_pos_s"></div></div>
+          <div class="kbig"><div class="l">Horas negativas</div><div class="v red" id="k2_neg"></div><div class="s" id="k2_neg_s"></div></div>
+          <div class="kbig"><div class="l">Maior saldo individual</div><div class="v" id="k2_max"></div><div class="s" id="k2_max_s"></div></div>
+        </div>
+
+        <div class="s-body" style="margin-top:16px">
+          <div class="card" style="flex:1.55">
+            <div class="card-title"><b>Top saldos</b> · maiores bancos de horas</div>
+            <div id="rankList" style="margin-top:8px;flex:1;min-height:0"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><b>Por centro de custo</b> · horas positivas</div>
+            <div id="ccBars" style="margin-top:12px"></div>
+          </div>
+          <div class="card" style="flex:.85">
+            <div class="card-title"><b>Saldos negativos</b> · atenção</div>
+            <div id="negList" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="s-foot" id="s2_foot"></div>
+
+        <div class="s2-empty" id="s2_empty">
+          <div class="ic">📥</div>
+          <div class="t1">Importe o Excel de Banco de Horas</div>
+          <div class="t2">Use o painel à esquerda para arrastar o arquivo .xlsx que o RH envia.
+          O slide se monta automaticamente — os dados ficam só neste navegador, nada é enviado para a internet.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -519,15 +671,199 @@ function fitSlide(){
 
 async function exportPNG(){
   const wrap=el('slideWrap'); const old=wrap.style.transform;
-  const canvas=await html2canvas(el('slide'),{
+  const target = ACTIVE===1 ? 'slide' : 'slide2';
+  const canvas=await html2canvas(el(target),{
     scale:2, backgroundColor:'#FFFFFF', useCORS:true,
     onclone:(doc)=>{ const w=doc.getElementById('slideWrap'); if(w){w.style.transform='none';} }
   });
   wrap.style.transform=old;
   const a=document.createElement('a');
-  a.download='Slide_Ponto_BH_'+(el('f_rgd').value||'RGD').replaceAll('/','-')+'.png';
+  const base = ACTIVE===1 ? 'Slide1_Ponto_BH_' : 'Slide2_BH_Colaboradores_';
+  a.download=base+(el('f_rgd').value||'RGD').replaceAll('/','-')+'.png';
   a.href=canvas.toDataURL('image/png'); a.click();
 }
+
+/* ================= SLIDE 2 : BH POR COLABORADOR ================= */
+let ACTIVE=1;
+let ROWS2=[];
+
+function switchSlide(n){
+  ACTIVE=n;
+  el('slide').style.display = n===1?'flex':'none';
+  el('slide2').style.display = n===2?'flex':'none';
+  el('ed1').style.display = n===1?'block':'none';
+  el('ed2').style.display = n===2?'block':'none';
+  el('tab1').className = 'tab'+(n===1?' active':'');
+  el('tab2').className = 'tab'+(n===2?' active':'');
+  if(n===2) render2();
+}
+
+function norm(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function titleCase(name){
+  return String(name||'').toLowerCase().split(/\s+/).map(w=>w? w[0].toUpperCase()+w.slice(1):'').join(' ');
+}
+function shortName(name){
+  const parts=String(name||'').trim().split(/\s+/);
+  return titleCase(parts.slice(0,2).join(' '));
+}
+function ccShort(cc){ return String(cc||'Sem CC').replace(/^\s*\d+\s*-\s*/,''); }
+
+function mapRows(json){
+  return json.map(r=>{
+    const o={nome:null,cargo:null,saldo:0,cc:null,gestor:null};
+    for(const k in r){
+      const n=norm(k);
+      if(n.includes('nome')) o.nome=r[k];
+      else if(n.includes('cargo')) o.cargo=r[k];
+      else if(n.includes('saldo')) o.saldo=parseFloat(r[k])||0;
+      else if(n.includes('cc')||n.includes('centro')) o.cc=r[k];
+      else if(n.includes('gestor')) o.gestor=r[k];
+    }
+    return o;
+  }).filter(o=>o.nome && o.nome!=='null');
+}
+
+function onFileLoaded(name, json){
+  ROWS2 = mapRows(json);
+  const st=el('fileStatus');
+  if(!ROWS2.length){
+    st.textContent='⚠ Não encontrei colunas de Nome/Saldo nesse arquivo. Confira se é o export do RH.';
+    st.className='filestatus';
+    return;
+  }
+  st.textContent='✓ '+name+' — '+ROWS2.length+' colaboradores importados.';
+  st.className='filestatus ok';
+  buildFilters(); render2();
+}
+
+function readFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      onFileLoaded(file.name, XLSX.utils.sheet_to_json(ws,{defval:null}));
+    }catch(err){
+      el('fileStatus').textContent='⚠ Erro ao ler o arquivo: '+err.message;
+      el('fileStatus').className='filestatus';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function buildFilters(){
+  const ccs=[...new Set(ROWS2.map(r=>r.cc).filter(Boolean))].sort();
+  const gs=[...new Set(ROWS2.map(r=>r.gestor).filter(Boolean))].sort();
+  el('f2_cc').innerHTML='<option value="ALL">Todos</option>'+ccs.map(c=>`<option value="${c}">${ccShort(c)}</option>`).join('');
+  el('f2_g').innerHTML='<option value="ALL">Todos</option>'+gs.map(g=>`<option value="${g}">${titleCase(g)}</option>`).join('');
+}
+
+function render2(){
+  el('s2_rgd').textContent=el('f_rgd').value;
+  el('s2_area').textContent=el('f_area').value;
+  el('s2_periodo').textContent='PERÍODO '+el('f_periodo').value;
+  el('f2_top_n').value=el('f2_top').value;
+
+  const empty=el('s2_empty');
+  if(!ROWS2.length){ empty.style.display='flex';
+    el('s2_scope').textContent='AGUARDANDO EXCEL';
+    el('s2_status').textContent='● SEM DADOS'; el('s2_status').className='chip status warn';
+    return; }
+  empty.style.display='none';
+
+  const cc=el('f2_cc').value, g=el('f2_g').value;
+  let rows=ROWS2.filter(r=>(cc==='ALL'||r.cc===cc)&&(g==='ALL'||r.gestor===g));
+  const pos=rows.filter(r=>r.saldo>0), neg=rows.filter(r=>r.saldo<0);
+  const posSum=pos.reduce((a,r)=>a+r.saldo,0), negSum=neg.reduce((a,r)=>a+r.saldo,0);
+
+  el('s2_scope').textContent=(cc==='ALL'?'TODOS OS CCs':ccShort(cc).toUpperCase().slice(0,22));
+  const st=el('s2_status');
+  if(neg.length===0){st.textContent='● SEM NEGATIVOS';st.className='chip status'}
+  else{st.textContent='● '+neg.length+' NEGATIVO'+(neg.length>1?'S':'');st.className='chip status bad'}
+
+  // KPIs
+  el('k2_total').textContent=rows.length;
+  el('k2_total_s').textContent=pos.length+' positivos · '+neg.length+' negativos';
+  el('k2_pos').textContent=fmt(posSum,0)+' h';
+  el('k2_pos_s').textContent='média de '+fmt(pos.length?posSum/pos.length:0)+' h por pessoa';
+  el('k2_neg').textContent=fmt(negSum)+' h';
+  el('k2_neg_s').textContent=neg.length? neg.length+' colaborador'+(neg.length>1?'es':''):'nenhum caso';
+  const top=rows.slice().sort((a,b)=>b.saldo-a.saldo)[0];
+  el('k2_max').textContent=top?fmt(top.saldo)+' h':'—';
+  el('k2_max_s').textContent=top?shortName(top.nome):'';
+
+  // Ranking
+  const N=parseInt(el('f2_top').value);
+  const rank=rows.slice().sort((a,b)=>b.saldo-a.saldo).slice(0,N);
+  const mx=rank.length?rank[0].saldo:1;
+  el('rankList').innerHTML=rank.map((r,i)=>`
+    <div class="rk">
+      <span class="pos">${String(i+1).padStart(2,'0')}</span>
+      <span class="who"><div class="nm">${shortName(r.nome)}</div><div class="cg">${r.cargo||''} · ${ccShort(r.cc)}</div></span>
+      <span class="bar"><i style="width:${Math.max(3,r.saldo/mx*100)}%"></i></span>
+      <span class="hv">${fmt(r.saldo)} h</span>
+    </div>`).join('');
+
+  // Por CC
+  const agg={};
+  pos.forEach(r=>{const k=r.cc||'Sem CC'; agg[k]=agg[k]||{h:0,n:0}; agg[k].h+=r.saldo; agg[k].n++;});
+  const ccArr=Object.entries(agg).sort((a,b)=>b[1].h-a[1].h).slice(0,5);
+  const cmx=ccArr.length?ccArr[0][1].h:1;
+  el('ccBars').innerHTML=ccArr.map(([k,v])=>`
+    <div class="cb">
+      <div class="t"><span class="n">${ccShort(k)}</span><span class="h">${fmt(v.h,0)} h</span></div>
+      <div class="bar"><i style="width:${Math.max(3,v.h/cmx*100)}%"></i></div>
+      <div class="pp">${v.n} colaborador${v.n>1?'es':''} · ${fmt(v.h/posSum*100,0)}% do total</div>
+    </div>`).join('');
+
+  // Negativos
+  const negs=neg.slice().sort((a,b)=>a.saldo-b.saldo).slice(0,7);
+  el('negList').innerHTML = negs.length
+    ? negs.map(r=>`<div class="ng"><span class="n">${shortName(r.nome)}</span><span class="v">${fmt(r.saldo)} h</span></div>`).join('')
+      + (neg.length>7?`<div class="ng"><span class="n" style="color:#7A85A6">+ ${neg.length-7} outros</span><span class="v">…</span></div>`:'')
+    : '<div class="ng-ok">✓ Nenhum saldo negativo no recorte atual</div>';
+
+  // Insights automáticos
+  const pct=rows.length?Math.round(pos.length/rows.length*100):0;
+  const bolsao=ccArr.length?ccShort(ccArr[0][0])+' concentra '+fmt(ccArr[0][1].h,0)+' h ('+fmt(ccArr[0][1].h/posSum*100,0)+'% do BH positivo)':'';
+  const note=el('f2_note').value.trim();
+  const ins=[
+    pct+'% do time com BH positivo ('+pos.length+' de '+rows.length+') — total de '+fmt(posSum,0)+' h a compensar',
+    bolsao,
+    note || (neg.length? neg.length+' colaborador'+(neg.length>1?'es':'')+' com saldo negativo somando '+fmt(negSum)+' h — tratar com gestores' : 'Nenhum saldo negativo — foco total na compensação dos positivos')
+  ].filter(t=>t);
+  el('s2_foot').innerHTML=ins.map((t,i)=>`<div class="hl"><span class="hn">0${i+1}</span><span>${t}</span></div>`).join('');
+}
+
+function loadDemo2(){
+  const demo=[
+    ['Ana Beatriz Rocha','Analista de Transportes I',148.3,'30071 - PCP SOLUTIONS MM','Gestor A'],
+    ['Bruno Cesar Lima','Comprador II',121.9,'30014 - SUPRIMENTOS FRETES','Gestor B'],
+    ['Carla Souza Prado','Lider de Transportes',97.4,'30070 - TRANSPORTE SOLUTIONS MM','Gestor C'],
+    ['Diego Martins Alves','Auxiliar de Transportes',85.2,'30071 - PCP SOLUTIONS MM','Gestor A'],
+    ['Elisa Ferreira Nunes','Comprador I',72.8,'30014 - SUPRIMENTOS FRETES','Gestor B'],
+    ['Felipe Costa Dias','Assistente de Transporte',64.1,'30070 - TRANSPORTE SOLUTIONS MM','Gestor C'],
+    ['Gabriela Pinto Melo','Auxiliar de Transportes',55.6,'30085 - DEDICADOS B2B - PCP','Gestor A'],
+    ['Henrique Silva Reis','Analista de Compras III',49.0,'30014 - SUPRIMENTOS FRETES','Gestor B'],
+    ['Isabela Moura Cruz','Auxiliar de Transportes',41.7,'30070 - TRANSPORTE SOLUTIONS MM','Gestor C'],
+    ['Joao Pedro Santana','Assistente Administrativo',33.2,'30084 - DEDICADOS B2B','Gestor A'],
+    ['Karen Lopes Faria','Auxiliar de Transportes',-2.4,'30071 - PCP SOLUTIONS MM','Gestor A'],
+    ['Lucas Andrade Melo','Auxiliar de Transportes',-5.8,'30070 - TRANSPORTE SOLUTIONS MM','Gestor C'],
+  ];
+  ROWS2=demo.map(d=>({nome:d[0],cargo:d[1],saldo:d[2],cc:d[3],gestor:d[4]}));
+  el('fileStatus').textContent='✓ Dados de demonstração (fictícios) carregados — '+ROWS2.length+' colaboradores.';
+  el('fileStatus').className='filestatus ok';
+  buildFilters(); render2();
+}
+
+// listeners do importador
+(function(){
+  const drop=el('drop'), fi=el('fileIn');
+  fi.addEventListener('change',e=>{ if(e.target.files[0]) readFile(e.target.files[0]); });
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+  drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) readFile(f); });
+})();
 
 window.addEventListener('resize',fitSlide);
 loadDefaults(); render(); fitSlide();
