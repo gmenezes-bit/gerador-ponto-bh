@@ -341,7 +341,7 @@ body{
     <h2>Cabeçalho</h2>
     <div class="field"><label>Área / times</label><input type="text" id="f_area" oninput="render()"></div>
     <div class="row2">
-      <div class="field"><label>RGD (data)</label><input type="text" id="f_rgd" oninput="render()"></div>
+      <div class="field"><label>Apresentação (data)</label><input type="text" id="f_rgd" oninput="render()"></div>
       <div class="field"><label>Período</label><input type="text" id="f_periodo" oninput="render()"></div>
     </div>
 
@@ -408,7 +408,7 @@ body{
       💡 Como usar: 1) atualize os números à esquerda — o slide se monta sozinho, incluindo
       o chip de status e o card de banco de horas, que muda conforme as respostas Sim/Não;
       2) clique em <b>Exportar PNG</b>;
-      3) cole a imagem no PowerPoint da RGD. Nada mais precisa ser formatado.
+      3) cole a imagem no PowerPoint da Apresentação. Nada mais precisa ser formatado.
     </div>
     </div><!-- /ed1 -->
 
@@ -439,7 +439,7 @@ body{
         🔒 <b>Privacidade:</b> o Excel é lido apenas no seu navegador — os dados
         <b>não são enviados para a internet</b> nem ficam salvos no link.
         Ao fechar a página, tudo é apagado.<br><br>
-        💡 Data da RGD, período e área são os mesmos preenchidos no Slide 1.
+        💡 Data da Apresentação, período e área são os mesmos preenchidos no Slide 1.
       </div>
     </div><!-- /ed2 -->
   </div>
@@ -450,7 +450,7 @@ body{
       <div id="slide">
         <div class="s-head">
           <div class="s-head-left">
-            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · RGD <span id="s_rgd"></span></div>
+            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · Apresentação <span id="s_rgd"></span></div>
             <div class="s-title">PONTO &amp; <em>BANCO DE HORAS</em></div>
             <div class="s-sub" id="s_area"></div>
           </div>
@@ -527,7 +527,7 @@ body{
       <div id="slide2" style="display:none">
         <div class="s-head">
           <div class="s-head-left">
-            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · RGD <span id="s2_rgd"></span></div>
+            <div class="eyebrow"><b>●</b> GESTÃO DE GENTE · Apresentação <span id="s2_rgd"></span></div>
             <div class="s-title">BANCO DE HORAS · <em>POR COLABORADOR</em></div>
             <div class="s-sub" id="s2_area"></div>
           </div>
@@ -775,7 +775,7 @@ async function exportPNG(){
   wrap.style.transform=old;
   const a=document.createElement('a');
   const base = ACTIVE===1 ? 'Slide1_Ponto_BH_' : 'Slide2_BH_Colaboradores_';
-  a.download=base+(el('f_rgd').value||'RGD').replaceAll('/','-')+'.png';
+  a.download=base+(el('f_rgd').value||'Apresentacao').replaceAll('/','-')+'.png';
   a.href=canvas.toDataURL('image/png'); a.click();
 }
 
