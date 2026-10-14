@@ -92,6 +92,20 @@ body{
 .sum-note.bad{color:var(--tex-red);font-weight:700}
 .hint{font-size:11px;color:#8A94B0;line-height:1.5;background:#F4F6FC;border-radius:8px;padding:10px;margin-top:14px}
 
+/* perguntas do gestor (BH) */
+.q{background:#F7F8FC;border:1px solid #E3E7F0;border-radius:10px;padding:10px 10px 4px;margin-bottom:10px}
+.q .qt{font-size:12px;font-weight:700;color:#1B2A5E;line-height:1.35;margin-bottom:8px}
+.q .qt span{color:var(--tex-red);font-family:'IBM Plex Mono',monospace;margin-right:4px}
+.yn{display:flex;gap:6px;margin-bottom:8px}
+.yn button{
+  flex:1;font-family:inherit;font-size:12px;font-weight:700;padding:7px 0;border-radius:7px;
+  border:1px solid #D5DBEA;background:#fff;color:#5B6788;cursor:pointer;transition:all .12s;
+}
+.yn button.on-yes{background:#1E9B5E;border-color:#1E9B5E;color:#fff}
+.yn button.on-no{background:#1B2A5E;border-color:#1B2A5E;color:#fff}
+.q .extra{display:none}
+.q .extra.show{display:block}
+
 /* ============ ÁREA DO SLIDE ============ */
 .stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:18px}
 #slideWrap{transform-origin:center center}
@@ -193,17 +207,42 @@ body{
 .leg-row .ln{color:#5B6788;flex:1}
 .leg-row .lv{font-family:'IBM Plex Mono',monospace;font-weight:600;color:#1B2A5E}
 
-/* --- col 3: BH --- */
-.bh-kpis{display:flex;gap:10px;margin-top:10px}
-.kpi{flex:1;background:#F7F8FC;border:1px solid #E3E7F0;border-radius:10px;padding:9px 10px}
-.kpi .kl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#7A85A6;line-height:1.3}
-.kpi .kv{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:3px;color:#1B2A5E}
-.kpi .kv.red{color:#C21927}
-.kpi .kv.green{color:#1E9B5E}
-.beam-zone{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:6px}
-.beam-caption{display:flex;justify-content:space-between;font-size:10px;color:#7A85A6;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.bh-goal{font-size:11px;color:#5B6788;font-style:italic;margin-top:6px;border-top:1px dashed #E3E7F0;padding-top:8px}
-.bh-goal b{color:#1B2A5E;font-style:normal}
+/* --- col 3: BH (dinâmico) --- */
+.bh-total{margin-top:10px;background:#F7F8FC;border:1px solid #E3E7F0;border-radius:12px;padding:12px 14px}
+.bh-total .kl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7A85A6}
+.bh-total .tv{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;color:#1B2A5E;line-height:1.1;margin-top:3px}
+.bh-total .tv small{font-size:16px;color:#7A85A6}
+.bh-total .ts{font-size:10.5px;color:#7A85A6;margin-top:2px}
+.bh-rows{display:flex;gap:10px;margin-top:10px}
+.bhr{flex:1;border-radius:10px;padding:9px 11px;border:1px solid #E3E7F0;background:#F7F8FC}
+.bhr .rl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#7A85A6;line-height:1.3}
+.bhr .rv{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;margin-top:3px;color:#1B2A5E}
+.bhr .rs{font-size:10px;margin-top:1px;color:#7A85A6}
+.bhr.ok{background:#F2FBF6;border-color:#B7E6CD}
+.bhr.ok .rv{color:#1E9B5E}
+.bhr.ok .rs{color:#1E9B5E;font-weight:700}
+.bhr.plan{background:#EFF3FD;border-color:#BFCBF0}
+.bhr.plan .rv{color:#2A3F8F}
+.bhr.plan .rs{color:#2A3F8F;font-weight:700}
+.bhr.off{background:#F4F5F9;border-style:dashed}
+.bhr.off .rv{color:#9AA3BE}
+.bh-viz{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:8px;min-height:0}
+.vlab{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7A85A6;margin-bottom:6px}
+.vbar{display:flex;height:30px;border-radius:9px;overflow:hidden;background:#EDF0F7}
+.vs{height:100%;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.vs.plan{background:linear-gradient(90deg,#4A66C9,#2A3F8F)}
+.vs.rest{background:linear-gradient(90deg,#FFC65C,#D98A00)}
+.vs.rest.zero{background:linear-gradient(90deg,#2EC97E,#1E9B5E)}
+.vs.hold{background:repeating-linear-gradient(135deg,#FFD58A 0 8px,#FFC65C 8px 16px)}
+.vcap{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:#5B6788;margin-top:7px;line-height:1.35}
+.vcap .d{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.vcap .d.plan{background:#2A3F8F}
+.vcap .d.rest{background:#D98A00}
+.vcap .d.zero{background:#1E9B5E}
+.bh-goal{font-size:11.5px;color:#5B6788;margin-top:6px;border-top:1px dashed #E3E7F0;padding-top:9px;line-height:1.45}
+.bh-goal b{color:#1B2A5E}
+.bh-goal.alert{color:#8A5A00}
+.bh-goal.alert b{color:#B26A00}
 
 /* footer destaques */
 .s-foot{display:flex;gap:12px;margin-top:18px;position:relative;z-index:1}
@@ -327,22 +366,37 @@ body{
     </div>
     <div class="sum-note" id="sumNote"></div>
 
-    <h2>Banco de horas</h2>
-    <div class="row2">
-      <div class="field"><label>Saldo positivo (h)</label><input type="number" id="f_saldo" step="0.1" oninput="render()"></div>
-      <div class="field"><label>Compensado (h)</label><input type="number" id="f_comp" step="0.1" oninput="render()"></div>
+    <h2>Banco de horas · perguntas ao gestor</h2>
+
+    <div class="q">
+      <div class="qt"><span>1</span>Quantidade total de horas acumulado pela equipe?</div>
+      <div class="field"><input type="number" id="f_total" step="0.1" min="0" placeholder="Total em horas (ex.: 263,2)" oninput="render()"></div>
     </div>
-    <div class="row2">
-      <div class="field"><label>BH a pagar (h)</label><input type="number" id="f_pagar" step="0.1" oninput="render()"></div>
-      <div class="field"><label>Meta zeragem (data)</label><input type="text" id="f_zerar" oninput="render()"></div>
+
+    <div class="q">
+      <div class="qt"><span>2</span>Teve banco de horas compensado na semana passada?</div>
+      <div class="yn" id="yn_comp">
+        <button type="button" onclick="setYN('comp',true)">Sim</button>
+        <button type="button" onclick="setYN('comp',false)">Não</button>
+      </div>
+      <div class="extra" id="ex_comp">
+        <div class="field"><label>Quantas horas foram compensadas?</label>
+          <input type="number" id="f_comp" step="0.1" min="0" placeholder="Horas compensadas" oninput="render()"></div>
+      </div>
     </div>
-    <div class="row2">
-      <div class="field"><label>Redução (h) ▼</label><input type="number" id="f_red" step="1" oninput="render()"></div>
-      <div class="field"><label>Aumento (h) ▲</label><input type="number" id="f_aum" step="1" oninput="render()"></div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Rótulo da redução</label><input type="text" id="f_redlab" oninput="render()"></div>
-      <div class="field"><label>Rótulo do aumento</label><input type="text" id="f_aumlab" oninput="render()"></div>
+
+    <div class="q">
+      <div class="qt"><span>3</span>Para essa semana, teremos compensação de banco de horas?</div>
+      <div class="yn" id="yn_prev">
+        <button type="button" onclick="setYN('prev',true)">Sim</button>
+        <button type="button" onclick="setYN('prev',false)">Não</button>
+      </div>
+      <div class="extra" id="ex_prev">
+        <div class="field"><label>Quantas horas serão compensadas?</label>
+          <input type="number" id="f_prev" step="0.1" min="0" placeholder="Horas previstas" oninput="render()"></div>
+        <div class="field"><label>Quando? (opcional)</label>
+          <input type="text" id="f_prevdia" placeholder="Ex.: quinta e sexta" oninput="render()"></div>
+      </div>
     </div>
 
     <h2>Destaques (até 3)</h2>
@@ -352,7 +406,8 @@ body{
 
     <div class="hint">
       💡 Como usar: 1) atualize os números à esquerda — o slide se monta sozinho, incluindo
-      o chip de status e a inclinação da balança de BH; 2) clique em <b>Exportar PNG</b>;
+      o chip de status e o card de banco de horas, que muda conforme as respostas Sim/Não;
+      2) clique em <b>Exportar PNG</b>;
       3) cole a imagem no PowerPoint da RGD. Nada mais precisa ser formatado.
     </div>
     </div><!-- /ed1 -->
@@ -452,33 +507,16 @@ body{
             </div>
           </div>
 
-          <!-- COL 3 -->
+          <!-- COL 3 : BANCO DE HORAS (layout dinâmico conforme as respostas) -->
           <div class="card">
-            <div class="card-title"><b>Banco de horas</b> · consumo &amp; zeragem</div>
-            <div class="bh-kpis">
-              <div class="kpi"><div class="kl">Saldo positivo</div><div class="kv" id="k_saldo"></div></div>
-              <div class="kpi"><div class="kl">Compensado</div><div class="kv green" id="k_comp"></div></div>
-              <div class="kpi"><div class="kl">BH a pagar</div><div class="kv red" id="k_pagar"></div></div>
+            <div class="card-title"><b>Banco de horas</b> · acúmulo &amp; compensação</div>
+            <div class="bh-total">
+              <div class="kl">Total acumulado pela equipe</div>
+              <div class="tv" id="bh_total"></div>
+              <div class="ts" id="bh_total_s"></div>
             </div>
-            <div class="beam-zone">
-              <svg width="100%" height="120" viewBox="0 0 340 120" preserveAspectRatio="xMidYMid meet">
-                <polygon points="170,74 160,102 180,102" fill="#C6CEE3"/>
-                <g id="beamG" transform="rotate(0 170 72)" style="transition:transform .8s cubic-bezier(.2,.8,.2,1)">
-                  <rect x="30" y="68" width="280" height="8" rx="4" fill="#1B2A5E"/>
-                  <g>
-                    <rect x="34" y="26" width="96" height="40" rx="9" fill="#F2FBF6" stroke="#1E9B5E" stroke-width="1.5"/>
-                    <text id="beamRed" x="82" y="45" text-anchor="middle" fill="#1E9B5E" font-size="16" font-weight="700" font-family="IBM Plex Mono,monospace"></text>
-                    <text x="82" y="59" text-anchor="middle" fill="#7A85A6" font-size="8.5" font-family="Sora,sans-serif">▼ REDUÇÃO</text>
-                  </g>
-                  <g>
-                    <rect x="210" y="26" width="96" height="40" rx="9" fill="#FDF3F4" stroke="#C21927" stroke-width="1.5"/>
-                    <text id="beamAum" x="258" y="45" text-anchor="middle" fill="#C21927" font-size="16" font-weight="700" font-family="IBM Plex Mono,monospace"></text>
-                    <text x="258" y="59" text-anchor="middle" fill="#7A85A6" font-size="8.5" font-family="Sora,sans-serif">▲ AUMENTO</text>
-                  </g>
-                </g>
-              </svg>
-              <div class="beam-caption"><span id="beamRedLab"></span><span id="beamAumLab"></span></div>
-            </div>
+            <div class="bh-rows" id="bh_rows"></div>
+            <div class="bh-viz" id="bh_viz"></div>
             <div class="bh-goal" id="bh_goal"></div>
           </div>
         </div>
@@ -545,26 +583,29 @@ const DEFAULTS = {
   rgd:"15/05", periodo:"01 a 19/11", meta:95,
   months:[{n:"Outubro",v:99.0},{n:"Novembro",v:82.0}],
   ap:90.4, na:8.9, pe:0.7,
-  saldo:263.2, comp:82.8, pagar:9.2, zerar:"27/11",
-  red:289, aum:422,
-  redlab:"Suprimentos Fretes", aumlab:"Programação Solutions (demandas manuais)",
+  // Banco de horas (perguntas ao gestor)
+  total:263.2,
+  compSim:true, comp:82.8,
+  prevSim:true, prev:60, prevdia:"",
   d1:"Pendência concentrada em fins de semana e feriado — ajustes seguem hoje",
   d2:"Interjornadas inerentes aos ajustes de escala no LG — correção em andamento",
   d3:"Visão de BH solicitada ao RH para plano de zeragem até 27/11",
 };
 let months = [];
+let compSim = true, prevSim = true;
 
 function el(id){return document.getElementById(id)}
 function num(id){const v=parseFloat(el(id).value);return isNaN(v)?0:v}
 function fmt(v,d=1){return v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 function loadDefaults(){
   el('f_area').value=DEFAULTS.area; el('f_rgd').value=DEFAULTS.rgd; el('f_periodo').value=DEFAULTS.periodo;
   el('f_meta').value=DEFAULTS.meta; el('f_meta_n').value=DEFAULTS.meta;
   el('f_ap').value=DEFAULTS.ap; el('f_na').value=DEFAULTS.na; el('f_pe').value=DEFAULTS.pe;
-  el('f_saldo').value=DEFAULTS.saldo; el('f_comp').value=DEFAULTS.comp; el('f_pagar').value=DEFAULTS.pagar;
-  el('f_zerar').value=DEFAULTS.zerar; el('f_red').value=DEFAULTS.red; el('f_aum').value=DEFAULTS.aum;
-  el('f_redlab').value=DEFAULTS.redlab; el('f_aumlab').value=DEFAULTS.aumlab;
+  el('f_total').value=DEFAULTS.total;
+  el('f_comp').value=DEFAULTS.comp; el('f_prev').value=DEFAULTS.prev; el('f_prevdia').value=DEFAULTS.prevdia;
+  compSim=DEFAULTS.compSim; prevSim=DEFAULTS.prevSim; syncYN();
   el('f_d1').value=DEFAULTS.d1; el('f_d2').value=DEFAULTS.d2; el('f_d3').value=DEFAULTS.d3;
   months = DEFAULTS.months.map(m=>({...m}));
   buildMonthInputs();
@@ -575,11 +616,25 @@ function sync(src){
   else el('f_meta').value=el('f_meta_n').value;
 }
 
+/* ---- botões Sim/Não das perguntas ---- */
+function setYN(which,val){
+  if(which==='comp') compSim=val; else prevSim=val;
+  syncYN(); render();
+}
+function syncYN(){
+  [['comp',compSim],['prev',prevSim]].forEach(([k,v])=>{
+    const b=el('yn_'+k).querySelectorAll('button');
+    b[0].className = v ? 'on-yes' : '';
+    b[1].className = v ? '' : 'on-no';
+    el('ex_'+k).className = 'extra'+(v?' show':'');
+  });
+}
+
 function buildMonthInputs(){
   const box=el('months'); box.innerHTML='';
   months.forEach((m,i)=>{
     const row=document.createElement('div'); row.className='month-row';
-    row.innerHTML=`<input type="text" value="${m.n}" oninput="months[${i}].n=this.value;render()">
+    row.innerHTML=`<input type="text" value="${esc(m.n)}" oninput="months[${i}].n=this.value;render()">
                    <input type="number" step="0.1" value="${m.v}" oninput="months[${i}].v=parseFloat(this.value)||0;render()">
                    <button title="remover" onclick="months.splice(${i},1);buildMonthInputs();render()">×</button>`;
     box.appendChild(row);
@@ -591,6 +646,58 @@ function addMonth(){
 }
 
 function colorFor(v,meta){ return v>=meta ? '#1E9B5E' : (v>=meta-15 ? '#E08A00' : '#C21927'); }
+
+/* ---- Card de Banco de horas: monta o layout conforme as respostas ---- */
+function renderBH(){
+  const total=Math.max(0,num('f_total'));
+  const comp=Math.max(0,num('f_comp'));
+  const prev=Math.max(0,num('f_prev'));
+  const dia=el('f_prevdia').value.trim();
+
+  // total
+  el('bh_total').innerHTML=fmt(total)+'<small> h</small>';
+  el('bh_total_s').textContent = total>0 ? 'horas a compensar pela equipe' : 'sem saldo acumulado informado';
+
+  // cards: semana passada / esta semana
+  const rows=[];
+  rows.push(compSim && comp>0
+    ? `<div class="bhr ok"><div class="rl">Semana passada</div><div class="rv">-${fmt(comp)} h</div><div class="rs">✓ compensado</div></div>`
+    : `<div class="bhr off"><div class="rl">Semana passada</div><div class="rv">—</div><div class="rs">sem compensação</div></div>`);
+  rows.push(prevSim && prev>0
+    ? `<div class="bhr plan"><div class="rl">Esta semana</div><div class="rv">-${fmt(prev)} h</div><div class="rs">compensação prevista${dia?' · '+esc(dia):''}</div></div>`
+    : `<div class="bhr off"><div class="rl">Esta semana</div><div class="rv">—</div><div class="rs">sem compensação prevista</div></div>`);
+  el('bh_rows').innerHTML=rows.join('');
+
+  // visual + frase de meta
+  const viz=el('bh_viz'), goal=el('bh_goal');
+  goal.className='bh-goal';
+  if(total<=0){
+    viz.innerHTML='';
+    goal.innerHTML='Informe o <b>total acumulado</b> para montar o plano da semana';
+  } else if(prevSim && prev>0){
+    const p=Math.min(prev,total), rest=Math.max(total-prev,0), zero=rest<=0;
+    viz.innerHTML=`
+      <div class="vlab">Projeção após a compensação da semana</div>
+      <div class="vbar">
+        <div class="vs plan" style="width:${p/total*100}%"></div>
+        <div class="vs rest ${zero?'zero':''}" style="width:${rest/total*100}%"></div>
+      </div>
+      <div class="vcap">
+        <span><i class="d plan"></i>Compensa ${fmt(p)} h</span>
+        <span><i class="d ${zero?'zero':'rest'}"></i>Saldo projetado ${fmt(rest)} h</span>
+      </div>`;
+    goal.innerHTML = zero
+      ? 'Compensação prevista <b>zera o BH</b> da equipe esta semana'
+      : 'Compensação cobre <b>'+fmt(p/total*100,0)+'%</b> do saldo — restam <b>'+fmt(rest)+' h</b>';
+  } else {
+    viz.innerHTML=`
+      <div class="vlab">Saldo sem redução prevista</div>
+      <div class="vbar"><div class="vs hold" style="width:100%"></div></div>
+      <div class="vcap"><span><i class="d rest"></i>Saldo mantido em ${fmt(total)} h</span></div>`;
+    goal.className='bh-goal alert';
+    goal.innerHTML='<b>Atenção:</b> sem compensação esta semana — o BH segue acumulado. Alinhar plano com o RH.';
+  }
+}
 
 function render(){
   // header
@@ -627,7 +734,7 @@ function render(){
     mm.innerHTML+=`<div class="mm">
       <div class="val">${fmt(m.v)}%</div>
       <div class="barwrap"><div class="fill ${cls2}" style="height:${Math.min(m.v,100)}%"></div></div>
-      <div class="name">${m.n}</div></div>`;
+      <div class="name">${esc(m.n)}</div></div>`;
   });
 
   // aprovação (normaliza sobre a soma)
@@ -641,24 +748,13 @@ function render(){
   note.textContent='Soma: '+fmt(total)+'%'+(Math.abs(total-100)>0.5?' — ajuste para fechar 100%':' ✓');
   note.className='sum-note'+(Math.abs(total-100)>0.5?' bad':'');
 
-  // BH
-  el('k_saldo').textContent=fmt(num('f_saldo'))+' h';
-  el('k_comp').textContent=fmt(num('f_comp'))+' h';
-  el('k_pagar').textContent=fmt(num('f_pagar'))+' h';
-  el('bh_goal').innerHTML='Meta: <b>zerar BH até '+el('f_zerar').value+'</b> — plano em alinhamento com RH';
-  const red=num('f_red'), aum=num('f_aum');
-  el('beamRed').textContent='-'+fmt(red,0)+' h';
-  el('beamAum').textContent='+'+fmt(aum,0)+' h';
-  el('beamRedLab').textContent='▼ '+el('f_redlab').value;
-  el('beamAumLab').textContent='▲ '+el('f_aumlab').value;
-  const mx=Math.max(red,aum,1);
-  const ang=Math.max(-9,Math.min(9,(aum-red)/mx*9)); // lado maior pesa pra baixo
-  el('beamG').setAttribute('transform',`rotate(${ang} 170 72)`);
+  // BH (dinâmico)
+  renderBH();
 
   // destaques
   const foot=el('s_foot'); foot.innerHTML='';
   [el('f_d1').value,el('f_d2').value,el('f_d3').value].filter(t=>t.trim()).forEach((t,i)=>{
-    foot.innerHTML+=`<div class="hl"><span class="hn">0${i+1}</span><span>${t}</span></div>`;
+    foot.innerHTML+=`<div class="hl"><span class="hn">0${i+1}</span><span>${esc(t)}</span></div>`;
   });
 }
 
